@@ -1,15 +1,24 @@
+require 'pp'
+require_relative 'rooms'
+require_relative 'exits'
+require_relative 'position'
+
 class Dungeon
 
-  POSITIONS = [ :top, :bottom, :left, :right ]
+  include Rooms
+  include Exits
 
   def initialize
     @cases = {}
-    @position = [ 0, 0, POSITIONS.sample ]
-    create_room
-    print_dungeon
+
+    @position = Position.new
+    @exits = []
   end
 
   def print_dungeon
+
+    # pp @cases
+
     min_w = @cases.keys.map{ |k| k[ 0 ] }.min
     min_h = @cases.keys.map{ |k| k[ 1 ] }.min
     max_w = @cases.keys.map{ |k| k[ 0 ] }.max
@@ -22,7 +31,7 @@ class Dungeon
           if @cases[ [ w, h ] ] && @cases[ [ w, h ] ] == :rock
             line << '#'
           else
-            line << ' '
+            line << '.'
           end
         end
         file.puts( line )
@@ -30,68 +39,9 @@ class Dungeon
     end
   end
 
-  private
-
-  def create_room
-    height = rand( 4 .. 8 )
-    width = rand( 4 .. 8 )
-
-    # Place room tiles
-    ( 1 .. height ).each do |h|
-      ( 1 .. width ).each do |w|
-        @cases[ [ w, h ] ] = :room unless @cases.has_key?( [ w, h ] )
-      end
-    end
-
-    # Create rock around
-    ( 0 .. height + 1 ).each do |h|
-      ( 0 .. width + 1 ).each do |w|
-        @cases[ [ w, h ] ] = :rock unless @cases.has_key?( [ w, h ] )
-      end
-    end
-
-    set_entry( height, width )
-  end
-
-  def set_entry( height, width )
-    pos = @position[ 2 ]
-    puts pos
-
-    if pos == :top
-      entry_w = rand( ( 1 .. width-1 ) )
-      entry_h = 0
-    elsif pos == :bottom
-      entry_w = rand( ( 1 .. width-1 ) )
-      entry_h = height + 1
-    elsif pos == :left
-      entry_h = rand( ( 1 .. height-1 ) )
-      entry_w = 0
-    elsif pos == :right
-      entry_h = rand( ( 1 .. height-1 ) )
-      entry_w = width + 1
-    end
-
-    # Carve an entry
-    @cases[ [ entry_w, entry_h ] ] = :room
-
-    if pos == :top || pos == :bottom
-      if entry_w + 1 >= width + 1
-        entry_w -= 1
-      else
-        entry_w += 1
-      end
-    else
-      if entry_h + 1 >= height + 1
-        entry_h -= 1
-      else
-        entry_h += 1
-      end
-    end
-
-    # Carve an entry
-    @cases[ [ entry_w, entry_h ] ] = :room
-
-  end
 end
 
-Dungeon.new
+d = Dungeon.new
+d.create_room
+d.print_dungeon
+
