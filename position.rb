@@ -1,6 +1,6 @@
 class Position
 
-  attr_reader :w, :h, :direction
+  attr_reader :w, :h
 
   DIRECTIONS = [ :top, :bottom, :left, :right ]
 
@@ -10,18 +10,17 @@ class Position
     @direction = direction if direction
   end
 
-  def d
-    @direction
+  def ==( position )
+    self.w == position.w && self.h == position.h
   end
 
-  def room_extension
-    if d == :left || d == :right
-      Position.new( @w-1, @h, @direction )
-    elsif d == :top | d == :bottom
-      Position.new( @w, @h-1, @direction )
-    else
-      raise "Position invalid : #{d}"
-    end
+  def hash_key
+    "#{w}_#{h}"
+  end
+
+  def d
+    raise "#{self.class}##{__method__} : @direction not defined" unless @direction
+    @direction
   end
 
 end

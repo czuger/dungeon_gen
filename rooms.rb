@@ -1,68 +1,70 @@
-module Rooms
+require_relative 'exits'
 
-  def create_room
-    height = rand( 4 .. 12 )
-    width = rand( 4 .. 12 )
+class Room
 
-    walls = []
-    # Creating room main entry
-    @cases[ @position ] = :room
+  include Exits
 
-    if [ :top, :bottom ].include?( @position.d )
-      @cases[ @position.room_extension ] = :room
+  def initialize( dungeon, door_position )
 
-      lines = @position[ :pos ] == :top ? ( 0 ... height ) : 0.downto( -height+1 )
+    @dungeon = dungeon
+    @door_position = door_position
+    orientation = @door_position.d
+
+    room_height = rand( 4 .. 12 )
+    room_width = rand( 4 .. 12 )
+
+    walls_for_exit= []
+
+    @dungeon.create_room( @door_position )
+
+    if [ :top, :bottom ].include?( orientation )
+      lines = orientation == :top ? ( 0 ... room_height ) : 0.downto( -room_height+1 )
       lines.each do |h|
-        walls += draw_line( @position[ :h ] + h, width, h == 0 || h == height-1 || h == -height+1 )
+        drawed_walls = draw_line( door_position.h + h, room_width, h == 0 || h == room_height-1 || h == -room_height+1 )
+        walls_for_exit += drawed_walls unless ( ( orientation == :top || orientation == :bottom ) && h == 0 ) # We dont carve exits on the side we are coming from
       end
-
     else
-      @cases[ @position.room_extension ] = :room
-
-      columns = @position.d == :left ? ( 0 ... width ) : 0.downto( -width+1 )
+      columns = orientation == :left ? ( 0 ... room_width ) : 0.downto( -room_width+1 )
       columns.each do |w|
-        walls += draw_column( height, @position.w + w, w == 0 || w == width-1 || w == -width+1 )
+        drawed_walls += draw_column( room_height, door_position.w + w, w == 0 || w == room_width-1 || w == -room_width+1 )
+        walls_for_exit += drawed_walls unless ( ( orientation == :left || orientation == :right ) && h == 0 ) # We dont carve exits on the side we are coming from
       end
     end
 
-    #create_exits( height, width, walls.shuffle )
+    create_exits( dungeon, walls_for_exit.shuffle )
   end
 
   private
 
-  def draw_column( height, width, plain )
+  def draw_column( height, room_width, plain )
     low_border = -(height/2.0).ceil
     high_border = (height/2.0).ceil
-    walls = []
+    walls_for_exit= []
 
     ( low_border ... high_border ).each do |h|
-      pos = Position.new( width, @position.h + h )
-      unless @cases.has_key?( pos )
-        fill = plain || [ low_border, high_border - 1 ].include?( h )
+      pos = Position.new( room_width, @door_position.h + h )
 
-        direction = :left if plain &&
+      fill = plain || [ low_border, high_border - 1 ].include?( h )
+      object_created = fill ? @dungeon.create_wall( pos ) : @dungeon.create_room( pos )
 
-        @cases[ pos ] = fill ? :rock : :room
-        walls << pos if fill
-      end
+      walls_for_exit<< pos if fill && object_created
     end
-    walls
+    walls_for_exit
   end
 
-  def draw_line( height, width, plain )
-    low_border = -(width/2.0).ceil
-    high_border = (width/2.0).ceil
-    walls = []
+  def draw_line( height, room_width, plain )
+    low_border = -(room_width/2.0).ceil
+    high_border = (room_width/2.0).ceil
+    walls_for_exit= []
 
     ( low_border ... high_border ).each do |w|
-      pos = Position.new( @position.w + w, height )
-      unless @cases.has_key?( [ @position.w + w, height ] )
-        fill = plain || [ low_border, high_border - 1 ].include?( w )
+      pos = Position.new( @door_position.w + w, height )
 
-        @cases[ pos ] = fill ? :rock : :room
-        walls << pos if fill
-      end
+      fill = plain || [ low_border, high_border - 1 ].include?( w )
+      object_created = fill ? @dungeon.create_wall( pos ) : @dungeon.create_room( pos )
+
+      walls_for_exit<< pos if fill && object_created
     end
-    walls
+    walls_for_exit
   end
 end

@@ -5,33 +5,55 @@ require_relative 'position'
 
 class Dungeon
 
-  include Rooms
-  include Exits
-
   def initialize
     @cases = {}
 
-    @position = Position.new
+    @start = Position.new( 0, 0, :top )
     @exits = []
+
+    @min_w = Float::INFINITY
+    @min_h = Float::INFINITY
+    @max_w = -Float::INFINITY
+    @max_h = -Float::INFINITY
+
+    Room.new( self, @start )
+  end
+
+  def carve_door( position )
+    @cases[ position.hash_key ] = :room
+    update_min_max( position )
+  end
+
+  def create_room( position )
+    unless @cases.has_key?( position.hash_key )
+      @cases[ position.hash_key ] = :room
+      update_min_max( position )
+    end
+  end
+
+  def create_wall( position )
+    unless @cases.has_key?( position.hash_key )
+      @cases[ position.hash_key ] = :rock
+      update_min_max( position )
+      true
+    end
   end
 
   def print_dungeon
 
-    # pp @cases
-
-    min_w = @cases.keys.map{ |k| k[ 0 ] }.min
-    min_h = @cases.keys.map{ |k| k[ 1 ] }.min
-    max_w = @cases.keys.map{ |k| k[ 0 ] }.max
-    max_h = @cases.keys.map{ |k| k[ 1 ] }.max
+    # pp self
 
     File.open( 'dungeon.txt', 'w' ) do |file|
-      ( min_h .. max_h ).each do |h|
+      ( @min_h.to_i .. @max_h.to_i ).each do |h|
         line = ''
-        ( min_w .. max_w ).each do |w|
-          if @cases[ [ w, h ] ] && @cases[ [ w, h ] ] == :rock
+        ( @min_w.to_i .. @max_w.to_i ).each do |w|
+          position_hash_key = Position.new( w, h ).hash_key
+          if @cases[ position_hash_key ] && @cases[ position_hash_key ] == :rock
             line << '#'
-          else
+          elsif @cases[ position_hash_key ] && @cases[ position_hash_key ] == :room
             line << '.'
+          else
+            line << '£'
           end
         end
         file.puts( line )
@@ -39,9 +61,17 @@ class Dungeon
     end
   end
 
+  private
+
+  def update_min_max( position )
+    @min_w = position.w if position.w < @min_w
+    @min_h = position.h if position.h < @min_h
+    @max_w = position.w if position.w > @max_w
+    @max_h = position.h if position.h > @max_h
+  end
+
 end
 
 d = Dungeon.new
-d.create_room
 d.print_dungeon
 
