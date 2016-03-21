@@ -2,16 +2,17 @@ require_relative 'exits'
 
 class Room
 
-  include Exits
+  attr_reader :exits
 
   def initialize( dungeon, door_position )
 
     @dungeon = dungeon
     @door_position = door_position
+
     orientation = @door_position.d
 
-    room_height = rand( 4 .. 12 )
-    room_width = rand( 4 .. 12 )
+    room_height = rand( 5 .. 8 )
+    room_width = rand( 5 .. 8 )
 
     walls_for_exit= []
 
@@ -24,14 +25,15 @@ class Room
         walls_for_exit += drawed_walls unless ( ( orientation == :top || orientation == :bottom ) && h == 0 ) # We dont carve exits on the side we are coming from
       end
     else
-      columns = orientation == :left ? ( 0 ... room_width ) : 0.downto( -room_width+1 )
+      columns = orientation == :right ? ( 0 ... room_width ) : 0.downto( -room_width+1 )
       columns.each do |w|
-        drawed_walls += draw_column( room_height, door_position.w + w, w == 0 || w == room_width-1 || w == -room_width+1 )
-        walls_for_exit += drawed_walls unless ( ( orientation == :left || orientation == :right ) && h == 0 ) # We dont carve exits on the side we are coming from
+        drawed_walls = draw_column( room_height, door_position.w + w, w == 0 || w == room_width-1 || w == -room_width+1 )
+        walls_for_exit += drawed_walls unless ( ( orientation == :left || orientation == :right ) && w == 0 ) # We dont carve exits on the side we are coming from
       end
     end
 
-    create_exits( dungeon, walls_for_exit.shuffle )
+    @exits = Exits.new( dungeon, walls_for_exit.shuffle )
+
   end
 
   private
@@ -67,4 +69,5 @@ class Room
     end
     walls_for_exit
   end
+
 end

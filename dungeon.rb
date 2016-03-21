@@ -2,25 +2,29 @@ require 'pp'
 require_relative 'rooms'
 require_relative 'exits'
 require_relative 'position'
+require_relative 'dungeon_output'
 
 class Dungeon
+
+  include DungeonOutput
+
+  attr_reader :current_room
 
   def initialize
     @cases = {}
 
-    @start = Position.new( 0, 0, :top )
-    @exits = []
+    @current_position = Position.new( 0, 0, :top )
 
     @min_w = Float::INFINITY
     @min_h = Float::INFINITY
     @max_w = -Float::INFINITY
     @max_h = -Float::INFINITY
 
-    Room.new( self, @start )
+    @current_room = Room.new( self, @current_position )
   end
 
-  def carve_door( position )
-    @cases[ position.hash_key ] = :room
+  def carve_door( position, exit_number )
+    @cases[ position.hash_key ] = exit_number
     update_min_max( position )
   end
 
@@ -39,26 +43,12 @@ class Dungeon
     end
   end
 
-  def print_dungeon
-
-    # pp self
-
-    File.open( 'dungeon.txt', 'w' ) do |file|
-      ( @min_h.to_i .. @max_h.to_i ).each do |h|
-        line = ''
-        ( @min_w.to_i .. @max_w.to_i ).each do |w|
-          position_hash_key = Position.new( w, h ).hash_key
-          if @cases[ position_hash_key ] && @cases[ position_hash_key ] == :rock
-            line << '#'
-          elsif @cases[ position_hash_key ] && @cases[ position_hash_key ] == :room
-            line << '.'
-          else
-            line << '£'
-          end
-        end
-        file.puts( line )
-      end
-    end
+  def move_into_dungeon( exit_number )
+    @current_position = @current_room.exits.get_exit_by_no( exit_number )
+    puts 'Entrez la direction de la porte (0 = top, 1 = bottom, 2 = left, 3 = right)'
+    num = gets.chomp
+    @current_position.set_direction( num.to_i )
+    @current_room = Room.new( self, @current_position )
   end
 
   private
@@ -73,5 +63,11 @@ class Dungeon
 end
 
 d = Dungeon.new
-d.print_dungeon
+
+while true
+  d.print_dungeon
+  d.current_room.exits.print_exits
+  num = gets.chomp
+  d.move_into_dungeon( num )
+end
 
