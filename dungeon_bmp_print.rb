@@ -1,15 +1,17 @@
 require 'rmagick'
 
-module DungeonOutput
+module DungeonAsciiPrint
 
   SIZE = 100
 
   def print_dungeon
 
-    maxw = @min_w.abs + @max_w.abs + 1
-    maxh = @min_h.abs + @max_h.abs + 1
+    compute_dungeon_corners
 
-    canvas = Magick::Image.new( maxw * SIZE, maxh * SIZE )
+    x_distance = @d_top_left_x.abs + @d_bottom_right_x.abs + 1
+    y_distance = @d_top_left_y.abs + @d_bottom_right_y.abs + 1
+
+    canvas = Magick::Image.new( x_distance * SIZE, y_distance * SIZE )
 
     gc = Magick::Draw.new
     gc.stroke( 'darkslateblue' )
@@ -18,15 +20,12 @@ module DungeonOutput
     # gc.rectangle( 10, 10, 50, 50 )
 
     File.open( 'dungeon.txt', 'w' ) do |file|
-      ( @min_h.to_i .. @max_h.to_i ).each do |h|
+      ( @d_top_left_y.to_i .. @d_bottom_right_y.to_i ).each do |h|
         line = ''
-        ( @min_w.to_i .. @max_w.to_i ).each do |w|
+        ( @d_top_left_x.to_i .. @d_bottom_right_x.to_i ).each do |w|
           position_hash_key = Position.new( w, h ).hash_key
 
-          if position_hash_key == @current_position.hash_key
-            line << 'X'
-            draw_case( gc, w, h )
-          elsif @cases[ position_hash_key ] && @cases[ position_hash_key ] == :rock
+          if @cases[ position_hash_key ] && @cases[ position_hash_key ] == :rock
             line << '#'
             draw_case( gc, w, h, true )
           elsif @cases[ position_hash_key ] && @cases[ position_hash_key ] == :room
@@ -54,10 +53,10 @@ module DungeonOutput
 
   def draw_case( gc, w, h, plain = false )
     gc.fill( 'darkslateblue' ) if plain
-    minx = ( w - @min_w ) * SIZE
-    maxx = ( w - @min_w + 1 ) * SIZE
-    miny = ( h - @min_h ) * SIZE
-    maxy = ( h - @min_h + 1 ) * SIZE
+    minx = ( w - @d_top_left_x ) * SIZE
+    maxx = ( w - @d_top_left_x + 1 ) * SIZE
+    miny = ( h - @d_top_left_y ) * SIZE
+    maxy = ( h - @d_top_left_y + 1 ) * SIZE
     gc.rectangle( minx, miny, maxx, maxy )
 
     gc.line( minx + SIZE / 2, miny, minx + SIZE / 2, maxy )

@@ -1,45 +1,31 @@
 require 'pp'
-require_relative 'rooms'
 require_relative 'exits'
 require_relative 'position'
-require_relative 'dungeon_output'
+require_relative 'dungeon_ascii_print'
+require_relative 'rect_room'
 
 class Dungeon
 
-  include DungeonOutput
+  include DungeonAsciiPrint
 
   attr_reader :current_room
 
-  def initialize
-    @cases = {}
-
-    @current_position = Position.new( 0, 0, :top )
-
-    @min_w = Float::INFINITY
-    @min_h = Float::INFINITY
-    @max_w = -Float::INFINITY
-    @max_h = -Float::INFINITY
-
-    @current_room = Room.new( self, @current_position )
-  end
-
-  def carve_door( position, exit_number )
-    @cases[ position.hash_key ] = exit_number
-    update_min_max( position )
-  end
-
-  def create_room( position )
-    unless @cases.has_key?( position.hash_key )
-      @cases[ position.hash_key ] = :room
-      update_min_max( position )
+  def initialize( nb_rooms )
+    @rooms_keys = []
+    @rooms = []
+    while( @rooms.count < nb_rooms ) do
+      room = RectRoom.new( nb_rooms )
+      if ( @rooms_keys & room.rooms_positions_keys ).empty?
+        @rooms << room
+        @rooms_keys += room.rooms_positions_keys
+      end
     end
   end
 
-  def create_wall( position )
-    unless @cases.has_key?( position.hash_key )
-      @cases[ position.hash_key ] = :rock
-      update_min_max( position )
-      true
+  def rooms_to_cases
+    @cases = {}
+    @rooms.each do |room|
+      room.set_cases( @cases )
     end
   end
 
@@ -51,23 +37,23 @@ class Dungeon
     @current_room = Room.new( self, @current_position )
   end
 
-  private
+  def compute_dungeon_corners
+    @d_top_left_x = @d_top_left_y = @d_bottom_right_x = @d_bottom_right_y = 0
+    @rooms.each do |room|
+      top_left_x, top_left_y, bottom_right_x, bottom_right_y = room.room_corners
 
-  def update_min_max( position )
-    @min_w = position.w if position.w < @min_w
-    @min_h = position.h if position.h < @min_h
-    @max_w = position.w if position.w > @max_w
-    @max_h = position.h if position.h > @max_h
+      @d_top_left_x = top_left_x if top_left_x < @d_top_left_x
+      @d_top_left_y = top_left_y if top_left_y < @d_top_left_y
+
+      @d_bottom_right_x = bottom_right_x if bottom_right_x > @d_bottom_right_x
+      @d_bottom_right_y = bottom_right_y if bottom_right_y > @d_bottom_right_y
+    end
+    @d_decal_x = @d_top_left_x < 0 ? @d_top_left_x.abs : 0
+    @d_decal_y = @d_top_left_y < 0 ? @d_top_left_y.abs : 0
   end
 
 end
 
-d = Dungeon.new
-
-while true
-  d.print_dungeon
-  d.current_room.exits.print_exits
-  num = gets.chomp
-  d.move_into_dungeon( num )
-end
+d = Dungeon.new( 10 )
+d.print_dungeon_ascii
 

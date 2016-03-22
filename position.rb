@@ -1,17 +1,17 @@
 class Position
 
-  attr_reader :w, :h
+  attr_reader :x, :y
 
   DIRECTIONS = [ :top, :bottom, :left, :right ]
 
-  def initialize( w = 0, h = 0, direction = nil )
-    @w = w
-    @h = h
+  def initialize( x, y, direction = nil )
+    @x = x
+    @y = y
     @direction = direction if direction
   end
 
   def distance( position )
-    Math.sqrt( ( w - position.w )**2 + ( h - position.h )**2 ).round( 0 )
+    Math.sqrt( ( x - position.x )**2 + ( y - position.y )**2 ).round( 0 )
   end
 
   def set_direction( direction_nb )
@@ -19,11 +19,11 @@ class Position
   end
 
   def ==( position )
-    self.w == position.w && self.h == position.h
+    self.x == position.x && self.y == position.y
   end
 
   def hash_key
-    "#{w}_#{h}"
+    "#{x}_#{y}"
   end
 
   def d
