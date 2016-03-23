@@ -7,7 +7,7 @@ module DungeonAsciiPrint
   def print_dungeon_ascii
 
     compute_dungeon_corners
-    rooms_to_cases
+    elements_to_cases
 
     File.open( 'dungeon.txt', 'w' ) do |file|
       ( @d_top_left_y.to_i .. @d_bottom_right_y.to_i ).each do |h|

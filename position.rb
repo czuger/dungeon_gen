@@ -22,6 +22,16 @@ class Position
     self.x == position.x && self.y == position.y
   end
 
+  def adjacent_positions
+    adj_pos = []
+    ( -1 .. 1 ).each do |xadd|
+      ( -1 .. 1 ).each do |yadd|
+        adj_pos << Position.new( x + xadd, y + yadd )
+      end
+    end
+    adj_pos
+  end
+
   def hash_key
     "#{x}_#{y}"
   end

@@ -1,10 +1,10 @@
 require 'rmagick'
 
-module DungeonAsciiPrint
+module DungeonBmpPrint
 
   SIZE = 100
 
-  def print_dungeon
+  def print_dungeon_bmp
 
     compute_dungeon_corners
 
@@ -19,27 +19,19 @@ module DungeonAsciiPrint
 
     # gc.rectangle( 10, 10, 50, 50 )
 
-    File.open( 'dungeon.txt', 'w' ) do |file|
-      ( @d_top_left_y.to_i .. @d_bottom_right_y.to_i ).each do |h|
-        line = ''
-        ( @d_top_left_x.to_i .. @d_bottom_right_x.to_i ).each do |w|
-          position_hash_key = Position.new( w, h ).hash_key
+    ( @d_top_left_y.to_i .. @d_bottom_right_y.to_i ).each do |h|
+      ( @d_top_left_x.to_i .. @d_bottom_right_x.to_i ).each do |w|
+        position_hash_key = Position.new( w, h ).hash_key
 
-          if @cases[ position_hash_key ] && @cases[ position_hash_key ] == :rock
-            line << '#'
-            draw_case( gc, w, h, true )
-          elsif @cases[ position_hash_key ] && @cases[ position_hash_key ] == :room
-            line << '.'
-            draw_case( gc, w, h )
-          elsif @cases[ position_hash_key ] && @cases[ position_hash_key ].is_a?( Integer )
-            line << @cases[ position_hash_key ].to_s
-            draw_case( gc, w, h )
-          else
-            line << ' '
-            draw_case( gc, w, h, true )
-          end
+        if @cases[ position_hash_key ] && @cases[ position_hash_key ] == :wall
+          draw_case( gc, w, h, true )
+        elsif @cases[ position_hash_key ] && @cases[ position_hash_key ] == :floor
+          draw_case( gc, w, h )
+        elsif @cases[ position_hash_key ] && @cases[ position_hash_key ].is_a?( Integer )
+          draw_case( gc, w, h )
+        else
+          draw_case( gc, w, h, true )
         end
-        file.puts( line )
       end
     end
 
