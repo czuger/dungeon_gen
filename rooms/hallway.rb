@@ -5,9 +5,11 @@ class Hallway < Room
   # TODO : have a look there http://www.gamasutra.com/blogs/AAdonaac/20150903/252889/Procedural_Dungeon_Generation_Algorithm.php
   # They explain how to make cornered hallways
 
-  def initialize( room1, room2 )
+  def initialize( dungeon, room1, room2 )
 
     super()
+
+    @dungeon = dungeon
 
     # try to create a straight hallway
     mp = get_rooms_midpoint( room1, room2 )
@@ -16,57 +18,80 @@ class Hallway < Room
 
     # We can draw a vertical hallway
     if mp.x > room1.top_left_x && mp.x > room2.top_left_x && mp.x < room1.bottom_right_x && mp.x < room2.bottom_right_x
-      draw_vertical_hallway( room1, room2 )
+      draw_vertical_hallway_between_rooms( room1, room2 )
+      #  We can draw a horizontal hallway
     elsif mp.y > room1.top_left_y && mp.y > room2.top_left_y && mp.y < room1.bottom_right_y && mp.y < room2.bottom_right_y
-      draw_horizontal_hallway( room1, room2 )
+      draw_horizontal_hallway_between_rooms( room1, room2 )
+    else
+      draw_cornered_hallway( room1, room2, mp )
     end
 
   end
 
   private
 
-  def draw_horizontal_hallway( room1, room2 )
-    if room1.top_left_y < room2.top_left_y
-      left_room = room1
-      right_room = room2
+  def draw_cornered_hallway( room1, room2, mp )
+    if room1.room_center.y > mp.y
+      top_room = room1
     else
-      left_room = room2
-      right_room = room1
+      top_room = room2
     end
+    bottom_room = ( [ room1, room2 ] - [ top_room ] ).first
+    raise "#{self.class}##{__method__} : bottom_room and top_room are the same" if top_room == bottom_room
+    draw_vertical_hallway_between_positions( Position.new( mp.x, bottom_room.room_center.y ), mp )
+    draw_horizontal_hallway_between_positions( Position.new( top_room.room_center.x, mp.y ), mp )
+  end
 
+  def draw_horizontal_hallway_between_rooms( room1, room2 )
     # Find the commons y coords
     common_y_coords = room1.room_y_coords & room2.room_y_coords
     y_connection_point = common_y_coords.sort[ common_y_coords.count / 2 ]
 
-    bottom_right_x_t = left_room.bottom_right_x
-    top_left_x_b = right_room.top_left_x
-
-    ( y_connection_point - 1 .. y_connection_point + 1 ).each do |y|
-      ( bottom_right_x_t .. top_left_x_b ).each do |x|
-        @elements << RoomElement.new(Position.new( x, y ), y == y_connection_point ? :floor : :wall )
-      end
-    end
+    draw_horizontal_hallway_between_positions(
+      Position.new( room1.room_center.x, y_connection_point ), Position.new( room2.room_center.x, y_connection_point ) )
   end
 
-  def draw_vertical_hallway( room1, room2 )
-    if room1.top_left_y < room2.top_left_y
-      top_room = room1
-      bottom_room = room2
-    else
-      top_room = room2
-      bottom_room = room1
-    end
-
+  def draw_vertical_hallway_between_rooms(room1, room2 )
     # Find the commons x coords
     common_x_coords = room1.room_x_coords & room2.room_x_coords
     x_connection_point = common_x_coords.sort[ common_x_coords.count / 2 ]
 
-    bottom_right_y_t = top_room.bottom_right_y
-    top_left_y_b = bottom_room.top_left_y
+    draw_vertical_hallway_between_positions(
+      Position.new( x_connection_point, room1.room_center.y ), Position.new( x_connection_point, room2.room_center.y ) )
+  end
 
-    ( x_connection_point - 1 .. x_connection_point + 1 ).each do |x|
-      ( bottom_right_y_t .. top_left_y_b ).each do |y|
-        @elements << RoomElement.new(Position.new( x, y ), x == x_connection_point ? :floor : :wall )
+  def draw_vertical_hallway_between_positions( pos_1, pos_2 )
+    raise "#{self.class}##{__method__} : #{pos_1} and #{pos_2} does not share an x position" unless pos_1.x == pos_2.x
+
+    miny = [ pos_1.y, pos_2.y ].min
+    maxy = [ pos_1.y, pos_2.y ].max
+
+    ( pos_1.x - 1 .. pos_1.x + 1 ).each do |x|
+      ( miny .. maxy ).each do |y|
+        if x == pos_1.x
+          @elements << RoomElement.new( Position.new( x, y ), :floor )
+        else
+          p = Position.new( x, y )
+          @elements << RoomElement.new( p, :wall ) unless @dungeon.case_occuped?( p.hash_key )
+        end
+      end
+    end
+  end
+
+  def draw_horizontal_hallway_between_positions( pos_1, pos_2 )
+    raise "#{self.class}##{__method__} : #{pos_1} and #{pos_2} does not share an y position" unless pos_1.y == pos_2.y
+
+    minx = [ pos_1.x, pos_2.x ].min
+    maxx = [ pos_1.x, pos_2.x ].max
+
+    ( pos_1.y - 1 .. pos_1.y + 1 ).each do |y|
+      ( minx .. maxx ).each do |x|
+        if y == pos_1.y
+          @elements << RoomElement.new( Position.new( x, y ), :floor )
+        else
+          p = Position.new( x, y )
+          @elements << RoomElement.new( p, :wall ) unless @dungeon.case_occuped?( p.hash_key )
+        end
       end
     end
   end

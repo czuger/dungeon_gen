@@ -10,7 +10,7 @@ module RoomsConnection
     edge_hash = get_spanning_tree
     edge_hash.each_pair do |source_room_id, values|
       values.each do |target_room_id|
-        @hallways << Hallway.new( @rooms[ source_room_id ], @rooms[ target_room_id ] )
+        @hallways << Hallway.new( self, @rooms[ source_room_id ], @rooms[ target_room_id ] )
       end
     end
   end

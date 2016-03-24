@@ -5,6 +5,7 @@ require_relative 'dungeon_ascii_print'
 require_relative 'rooms/rect_room'
 require_relative 'rooms/rooms_connection'
 require_relative 'dungeon_bmp_print'
+require 'set'
 
 class Dungeon
 
@@ -15,20 +16,32 @@ class Dungeon
   attr_reader :current_room
 
   def initialize( nb_rooms )
-    @rooms_keys = []
+
+    srand( 501 )
+
+    # The cases really occuped by the room
+    @occuped_cases = Set.new
+    # The cases around the room to avoid accoladed rooms
+    @room_phantom_cases = Set.new
+
     @rooms = []
     @hallways = []
 
     while( @rooms.count < nb_rooms ) do
       room = RectRoom.new( nb_rooms )
-      if ( @rooms_keys & room.room_hash_keys_footprint ).empty?
+      if ( @occuped_cases & room.room_hash_keys_footprint ).empty? && ( @room_phantom_cases & room.room_hash_keys_phantom ).empty?
         @rooms << room
-        @rooms_keys += room.room_hash_keys_footprint
+        @occuped_cases += room.room_hash_keys_footprint
+        @room_phantom_cases += room.room_hash_keys_phantom
       end
     end
 
     connect_rooms
 
+  end
+
+  def case_occuped?( hash_key )
+    @occuped_cases.include?(hash_key )
   end
 
   def elements_to_cases

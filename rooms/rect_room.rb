@@ -20,7 +20,11 @@ class RectRoom < Room
   end
 
   def room_hash_keys_footprint
-    @elements.map{ |r| r.position }.map{ |p| p.adjacent_positions }.flatten.uniq.map{ |e| e.hash_key }
+    @elements.map{ |r| r.position }.flatten.uniq.map{ |e| e.hash_key }
+  end
+
+  def room_hash_keys_phantom
+    @elements.map{ |r| r.position }.map{ |p| p.adjacent_positions }.flatten.uniq.map{ |e| e.hash_key } - room_hash_keys_footprint
   end
 
   def room_corners
