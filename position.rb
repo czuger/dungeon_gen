@@ -41,4 +41,20 @@ class Position
     @direction
   end
 
+  def move( order )
+    command, amount =  order.scan( /(\w)(\d+)/ ).first
+    amount = amount.to_i / 2.0
+    if command == 't'
+      @y -= amount
+    elsif command == 'b'
+      @y += amount
+    elsif command == 'l'
+      @x -= amount
+    elsif command == 'r'
+      @x += amount
+    else
+      puts 'Bad order !!'
+    end
+  end
+
 end

@@ -13,8 +13,8 @@ class RectRoom < Room
     @room_angle = rand( 0 .. 2*Math::PI )
 
     @room_center = Position.new( (@room_distance * Math.cos( @room_angle )).round( 0 ), (@room_distance * Math.sin( @room_angle )).round( 0 ) )
-    @room_height = rand( 4 .. 12 )
-    @room_width = rand( 4 .. 12 )
+    @room_height = rand( 4 .. 8 )
+    @room_width = rand( 4 .. 8 )
 
     draw_room
   end

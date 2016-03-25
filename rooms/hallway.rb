@@ -13,8 +13,7 @@ class Hallway < Room
 
     # try to create a straight hallway
     mp = get_rooms_midpoint( room1, room2 )
-    top_left_x_1, top_left_y_1, bottom_right_x_1, bottom_right_y_1 = room1.room_corners
-    top_left_x_2, top_left_y_2, bottom_right_x_2, bottom_right_y_2 = room2.room_corners
+    # @elements << RoomElement.new( mp, :wall ) unless @dungeon.case_occuped?( mp.hash_key )
 
     # We can draw a vertical hallway
     if mp.x > room1.top_left_x && mp.x > room2.top_left_x && mp.x < room1.bottom_right_x && mp.x < room2.bottom_right_x
@@ -38,8 +37,8 @@ class Hallway < Room
     end
     bottom_room = ( [ room1, room2 ] - [ top_room ] ).first
     raise "#{self.class}##{__method__} : bottom_room and top_room are the same" if top_room == bottom_room
-    draw_vertical_hallway_between_positions( Position.new( mp.x, bottom_room.room_center.y ), mp )
-    draw_horizontal_hallway_between_positions( Position.new( top_room.room_center.x, mp.y ), mp )
+    draw_vertical_hallway_between_positions( top_room.room_center, Position.new( top_room.room_center.x, bottom_room.room_center.y ) )
+    draw_horizontal_hallway_between_positions( bottom_room.room_center, Position.new( top_room.room_center.x, bottom_room.room_center.y ) )
   end
 
   def draw_horizontal_hallway_between_rooms( room1, room2 )
@@ -68,12 +67,13 @@ class Hallway < Room
 
     ( pos_1.x - 1 .. pos_1.x + 1 ).each do |x|
       ( miny .. maxy ).each do |y|
+        p = Position.new( x, y )
         if x == pos_1.x
-          @elements << RoomElement.new( Position.new( x, y ), :floor )
+          @elements << RoomElement.new( p, :floor )
         else
-          p = Position.new( x, y )
           @elements << RoomElement.new( p, :wall ) unless @dungeon.case_occuped?( p.hash_key )
         end
+        @dungeon.set_case_occuped( p )
       end
     end
   end
@@ -86,12 +86,14 @@ class Hallway < Room
 
     ( pos_1.y - 1 .. pos_1.y + 1 ).each do |y|
       ( minx .. maxx ).each do |x|
+        p = Position.new( x, y )
         if y == pos_1.y
-          @elements << RoomElement.new( Position.new( x, y ), :floor )
+          @elements << RoomElement.new( p, :floor )
         else
           p = Position.new( x, y )
           @elements << RoomElement.new( p, :wall ) unless @dungeon.case_occuped?( p.hash_key )
         end
+        @dungeon.set_case_occuped( p )
       end
     end
   end

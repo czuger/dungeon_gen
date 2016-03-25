@@ -5,6 +5,7 @@ require_relative 'dungeon_ascii_print'
 require_relative 'rooms/rect_room'
 require_relative 'rooms/rooms_connection'
 require_relative 'dungeon_bmp_print'
+require_relative 'movement_in_dungeon'
 require 'set'
 
 class Dungeon
@@ -12,12 +13,13 @@ class Dungeon
   include DungeonAsciiPrint
   include DungeonBmpPrint
   include RoomsConnection
+  include MovementInDungeon
 
   attr_reader :current_room
 
   def initialize( nb_rooms )
 
-    srand( 501 )
+    # srand( 501 )
 
     # The cases really occuped by the room
     @occuped_cases = Set.new
@@ -38,10 +40,18 @@ class Dungeon
 
     connect_rooms
 
+    @temporary_pos = @rooms.first.room_center.clone
+    @last_pos = @rooms.first.room_center.clone
+    @current_pos = @rooms.first.room_center.clone
+
   end
 
   def case_occuped?( hash_key )
     @occuped_cases.include?(hash_key )
+  end
+
+  def set_case_occuped( pos )
+    @occuped_cases << pos.hash_key
   end
 
   def elements_to_cases
@@ -78,6 +88,7 @@ class Dungeon
 end
 
 d = Dungeon.new( 15 )
-d.print_dungeon_ascii
-# d.print_dungeon_bmp
+d.print_dungeon_bmp
+
+d.movement_loop
 
