@@ -29,17 +29,30 @@ module DungeonBmpPrint
       ( @d_top_left_x.to_i .. @d_bottom_right_x.to_i ).each do |w|
         position = Position.new( w, h )
 
-        if position.distance( @current_pos ) < 6 || position.distance( @last_pos ) < 6
+        if position.distance( @current_pos ) < 10 || position.distance( @last_pos ) < 10
           position_hash_key = position.hash_key
 
           if @cases[ position_hash_key ] && @cases[ position_hash_key ] == :wall
             true_minx, true_maxx, true_miny, true_maxy = draw_case( gc, w, h, [ true_minx, true_maxx, true_miny, true_maxy ], true )
           elsif @cases[ position_hash_key ] && @cases[ position_hash_key ] == :floor
             true_minx, true_maxx, true_miny, true_maxy = draw_case( gc, w, h, [ true_minx, true_maxx, true_miny, true_maxy ] )
-          elsif @cases[ position_hash_key ] && @cases[ position_hash_key ].is_a?( Integer )
-            true_minx, true_maxx, true_miny, true_maxy = draw_case( gc, w, h, [ true_minx, true_maxx, true_miny, true_maxy ] )
+            if @dungeon_content[ position_hash_key ]
+              print_text( gc, position, @dungeon_content[ position_hash_key ] ) unless @dungeon_content[ position_hash_key ].empty?
+            end
           else
             true_minx, true_maxx, true_miny, true_maxy = draw_case( gc, w, h, [ true_minx, true_maxx, true_miny, true_maxy ], true )
+          end
+        end
+      end
+    end
+
+    ( @d_top_left_y.to_i .. @d_bottom_right_y.to_i ).each do |h|
+      ( @d_top_left_x.to_i .. @d_bottom_right_x.to_i ).each do |w|
+        position = Position.new( w, h )
+        if position.distance( @current_pos ) < 10 || position.distance( @last_pos ) < 10
+          position_hash_key = position.hash_key
+          if @dungeon_content[ position_hash_key ]
+            print_text( gc, position, @dungeon_content[ position_hash_key ] ) unless @dungeon_content[ position_hash_key ].empty?
           end
         end
       end
@@ -54,10 +67,20 @@ module DungeonBmpPrint
     # puts true_minx, true_maxx, true_miny, true_maxy
     canvas.crop!( true_minx, true_miny, true_maxx - true_minx, true_maxy - true_miny )
 
-    canvas.write( 'dungeon.bmp' )
+    canvas.write( 'dungeon.jpg' )
   end
 
   private
+
+  def print_text( gc, position, text )
+    x = ( position.x - @d_top_left_x.to_i + 0.5 - 0.25 ) * SIZE
+    y = ( position.y - @d_top_left_y.to_i + 0.5 + 0.25 ) * SIZE
+    gc.pointsize = 80
+    gc.fill( 'black' )
+    puts text.join( '' ).inspect
+    gc.text( x, y, text.join( '' ) )
+    gc.fill( 'white' )
+  end
 
   def draw_pos( gc )
     x = ( @current_pos.x - @d_top_left_x.to_i + 0.5 ) * SIZE

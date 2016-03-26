@@ -1,11 +1,10 @@
 require 'pp'
-require_relative 'exits'
-require_relative 'position'
-require_relative 'dungeon_ascii_print'
+require_relative 'rooms/position'
+require_relative 'game/dungeon_ascii_print'
 require_relative 'rooms/rect_room'
 require_relative 'rooms/rooms_connection'
-require_relative 'dungeon_bmp_print'
-require_relative 'movement_in_dungeon'
+require_relative 'game/dungeon_bmp_print'
+require_relative 'game/movement_in_dungeon'
 require 'set'
 
 class Dungeon
@@ -43,6 +42,33 @@ class Dungeon
     @temporary_pos = @rooms.first.room_center.clone
     @last_pos = @rooms.first.room_center.clone
     @current_pos = @rooms.first.room_center.clone
+
+    # Set dungeon content
+    @dungeon_content = {}
+
+    # Monsters generation, each room has halve a chance of having a monster
+    @rooms.each do |room|
+      monster = @rooms.first != room && rand( 1 .. 2 ) == 1 ? 'M' : nil
+      @dungeon_content[ room.room_center.hash_key ] = []
+      @dungeon_content[ room.room_center.hash_key ] << monster if monster
+    end
+
+    # Treasure generation.
+    # 10% chance of a trapped chest rather than a single treasure (still contain treasure)
+    # C = Chest, mean trapped chest containing hoard, H = Hoard, mean non trapped hoard
+    treasure_room = nil
+    greatest_distance = -Float::INFINITY
+    @rooms.each do |room|
+      distance = @rooms.first.room_center.distance( room.room_center )
+      if distance > greatest_distance
+        greatest_distance = distance
+        treasure_room = room
+      end
+    end
+    treasure = rand( 1 .. 10 ) == 1 ? 'C' : 'H'
+    @dungeon_content[ treasure_room.room_center.hash_key ] << treasure
+
+    # pp @dungeon_content
 
   end
 
@@ -87,7 +113,7 @@ class Dungeon
 
 end
 
-d = Dungeon.new( 15 )
+d = Dungeon.new( 16 )
 d.print_dungeon_bmp
 
 d.movement_loop

@@ -44,9 +44,9 @@ class Position
   def move( order )
     command, amount =  order.scan( /(\w)(\d+)/ ).first
     amount = amount.to_i / 2.0
-    if command == 't'
+    if command == 'u'
       @y -= amount
-    elsif command == 'b'
+    elsif command == 'd'
       @y += amount
     elsif command == 'l'
       @x -= amount
