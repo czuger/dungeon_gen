@@ -18,7 +18,11 @@ class Dungeon
 
   def initialize( nb_rooms )
 
-    # srand( 501 )
+    superseed = nil
+    # superseed = 86614018045689858413167880384234398894
+    seed = superseed ? superseed : Random.new_seed
+    puts "Dungeon seed = #{seed}"
+    srand( seed )
 
     # The cases really occuped by the room
     @occuped_cases = Set.new

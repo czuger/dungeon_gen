@@ -67,7 +67,7 @@ module DungeonBmpPrint
     # puts true_minx, true_maxx, true_miny, true_maxy
     canvas.crop!( true_minx, true_miny, true_maxx - true_minx, true_maxy - true_miny )
 
-    canvas.write( 'dungeon.jpg' )
+    canvas.write( 'out/dungeon.jpg' )
   end
 
   private
