@@ -14,12 +14,14 @@ class Dungeon
   include RoomsConnection
   include MovementInDungeon
 
+  WATCH_DISTANCE=4
+
   attr_reader :current_room
 
   def initialize( nb_rooms )
 
     superseed = nil
-    # superseed = 86614018045689858413167880384234398894
+    superseed = 227363164522134968962419981135215379863
     seed = superseed ? superseed : Random.new_seed
     puts "Dungeon seed = #{seed}"
     srand( seed )
@@ -43,7 +45,6 @@ class Dungeon
 
     connect_rooms
 
-    @temporary_pos = @rooms.first.room_center.clone
     @last_pos = @rooms.first.room_center.clone
     @current_pos = @rooms.first.room_center.clone
 

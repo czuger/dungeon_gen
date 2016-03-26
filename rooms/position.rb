@@ -36,6 +36,12 @@ class Position
     "#{x}_#{y}"
   end
 
+  def self.from_hash_key( hash_key )
+    # puts hash_key.inspect
+    x, y = hash_key.split( '_' )
+    Position.new( x.to_i, y.to_i )
+  end
+
   def d
     raise "#{self.class}##{__method__} : @direction not defined" unless @direction
     @direction

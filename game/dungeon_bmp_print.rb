@@ -36,9 +36,6 @@ module DungeonBmpPrint
             true_minx, true_maxx, true_miny, true_maxy = draw_case( gc, w, h, [ true_minx, true_maxx, true_miny, true_maxy ], true )
           elsif @cases[ position_hash_key ] && @cases[ position_hash_key ] == :floor
             true_minx, true_maxx, true_miny, true_maxy = draw_case( gc, w, h, [ true_minx, true_maxx, true_miny, true_maxy ] )
-            if @dungeon_content[ position_hash_key ]
-              print_text( gc, position, @dungeon_content[ position_hash_key ] ) unless @dungeon_content[ position_hash_key ].empty?
-            end
           else
             true_minx, true_maxx, true_miny, true_maxy = draw_case( gc, w, h, [ true_minx, true_maxx, true_miny, true_maxy ], true )
           end
@@ -49,10 +46,14 @@ module DungeonBmpPrint
     ( @d_top_left_y.to_i .. @d_bottom_right_y.to_i ).each do |h|
       ( @d_top_left_x.to_i .. @d_bottom_right_x.to_i ).each do |w|
         position = Position.new( w, h )
-        if position.distance( @current_pos ) < 10 || position.distance( @last_pos ) < 10
+        if position.distance( @current_pos ) < Dungeon::WATCH_DISTANCE || position.distance( @last_pos ) < Dungeon::WATCH_DISTANCE
           position_hash_key = position.hash_key
           if @dungeon_content[ position_hash_key ]
-            print_text( gc, position, @dungeon_content[ position_hash_key ] ) unless @dungeon_content[ position_hash_key ].empty?
+            unless @dungeon_content[ position_hash_key ].empty?
+              # puts position.distance( @current_pos )
+              # puts position.distance( @last_pos )
+              print_text( gc, position, @dungeon_content[ position_hash_key ] )
+            end
           end
         end
       end
@@ -77,7 +78,7 @@ module DungeonBmpPrint
     y = ( position.y - @d_top_left_y.to_i + 0.5 + 0.25 ) * SIZE
     gc.pointsize = 80
     gc.fill( 'black' )
-    puts text.join( '' ).inspect
+    # puts text.join( '' ).inspect
     gc.text( x, y, text.join( '' ) )
     gc.fill( 'white' )
   end
@@ -85,8 +86,14 @@ module DungeonBmpPrint
   def draw_pos( gc )
     x = ( @current_pos.x - @d_top_left_x.to_i + 0.5 ) * SIZE
     y = ( @current_pos.y - @d_top_left_y.to_i + 0.5 ) * SIZE
+
+    gc.fill_opacity( 0 )
+    gc.circle( x, y, x + ( SIZE * Dungeon::WATCH_DISTANCE ) / 2, y + ( SIZE * Dungeon::WATCH_DISTANCE / 2 ) )
+    gc.fill_opacity( 1 )
+
     gc.fill( 'red' )
     gc.circle( x, y, x + SIZE / 4, y + SIZE / 4 )
+
   end
 
   def draw_case( gc, w, h, image_borders, plain = false )
