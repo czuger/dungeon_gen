@@ -21,7 +21,7 @@ class Dungeon
   def initialize( nb_rooms )
 
     superseed = nil
-    superseed = 227363164522134968962419981135215379863
+    # superseed = 227363164522134968962419981135215379863
     seed = superseed ? superseed : Random.new_seed
     puts "Dungeon seed = #{seed}"
     srand( seed )
