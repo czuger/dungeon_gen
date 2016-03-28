@@ -1,63 +1,53 @@
 require 'rmagick'
+require_relative 'dungeon_bmp_print_picture_size'
 
 module DungeonBmpPrint
 
-  SIZE = 100
-
   def print_dungeon_bmp
 
-    compute_dungeon_corners
+    # compute_dungeon_corners
     elements_to_cases
 
-    x_distance = @d_top_left_x.abs + @d_bottom_right_x.abs + 1
-    y_distance = @d_top_left_y.abs + @d_bottom_right_y.abs + 1
+    @picture_size = DungeonBmpPrintPictureSize.new( @current_pos, @last_pos )
 
-    canvas = Magick::Image.new( x_distance * SIZE, y_distance * SIZE )
+    # x_distance = @d_top_left_x.abs + @d_bottom_right_x.abs + 1
+    # y_distance = @d_top_left_y.abs + @d_bottom_right_y.abs + 1
+
+    canvas = Magick::Image.new( @picture_size.width, @picture_size.height )
 
     gc = Magick::Draw.new
     gc.stroke( 'darkslateblue' )
     gc.fill( 'white' )
 
-    true_minx = nil
-    true_maxx = nil
-    true_miny = nil
-    true_maxy = nil
-
     # gc.rectangle( 10, 10, 50, 50 )
 
-    ( @d_top_left_y.to_i .. @d_bottom_right_y.to_i ).each do |h|
-      ( @d_top_left_x.to_i .. @d_bottom_right_x.to_i ).each do |w|
-        position = Position.new( w, h )
+    @picture_size.each_case do |position|
+      position_hash_key = position.hash_key
 
-        if position.distance( @current_pos ) < 10 || position.distance( @last_pos ) < 10
-          position_hash_key = position.hash_key
-
-          if @cases[ position_hash_key ] && @cases[ position_hash_key ] == :wall
-            true_minx, true_maxx, true_miny, true_maxy = draw_case( gc, w, h, [ true_minx, true_maxx, true_miny, true_maxy ], true )
-          elsif @cases[ position_hash_key ] && @cases[ position_hash_key ] == :floor
-            true_minx, true_maxx, true_miny, true_maxy = draw_case( gc, w, h, [ true_minx, true_maxx, true_miny, true_maxy ] )
-          else
-            true_minx, true_maxx, true_miny, true_maxy = draw_case( gc, w, h, [ true_minx, true_maxx, true_miny, true_maxy ], true )
-          end
-        end
+      if @cases[ position_hash_key ] && @cases[ position_hash_key ] == :wall
+        draw_case( gc, position, true )
+      elsif @cases[ position_hash_key ] && @cases[ position_hash_key ] == :floor
+        draw_case( gc, position )
+      else
+        draw_case( gc, position, true )
       end
     end
 
-    ( @d_top_left_y.to_i .. @d_bottom_right_y.to_i ).each do |h|
-      ( @d_top_left_x.to_i .. @d_bottom_right_x.to_i ).each do |w|
-        position = Position.new( w, h )
-        if position.distance( @current_pos ) < Dungeon::WATCH_DISTANCE || position.distance( @last_pos ) < Dungeon::WATCH_DISTANCE
-          position_hash_key = position.hash_key
-          if @dungeon_content[ position_hash_key ]
-            unless @dungeon_content[ position_hash_key ].empty?
-              # puts position.distance( @current_pos )
-              # puts position.distance( @last_pos )
-              print_text( gc, position, @dungeon_content[ position_hash_key ] )
-            end
-          end
-        end
-      end
-    end
+    # ( @d_top_left_y.to_i .. @d_bottom_right_y.to_i ).each do |h|
+    #   ( @d_top_left_x.to_i .. @d_bottom_right_x.to_i ).each do |w|
+    #     position = Position.new( w, h )
+    #     if position.distance( @current_pos ) < Dungeon::WATCH_DISTANCE || position.distance( @last_pos ) < Dungeon::WATCH_DISTANCE
+    #       position_hash_key = position.hash_key
+    #       if @dungeon_content[ position_hash_key ]
+    #         unless @dungeon_content[ position_hash_key ].empty?
+    #           # puts position.distance( @current_pos )
+    #           # puts position.distance( @last_pos )
+    #           print_text( gc, position, @dungeon_content[ position_hash_key ] )
+    #         end
+    #       end
+    #     end
+    #   end
+    # end
 
     # gc.rectangle( 10, 10, 500, 500 )
 
@@ -66,7 +56,7 @@ module DungeonBmpPrint
     gc.draw( canvas )
 
     # puts true_minx, true_maxx, true_miny, true_maxy
-    canvas.crop!( true_minx, true_miny, true_maxx - true_minx, true_maxy - true_miny )
+    # canvas.crop!( true_minx, true_miny, true_maxx - true_minx, true_maxy - true_miny )
 
     canvas.write( 'out/dungeon.jpg' )
   end
@@ -84,41 +74,35 @@ module DungeonBmpPrint
   end
 
   def draw_pos( gc )
-    x = ( @current_pos.x - @d_top_left_x.to_i + 0.5 ) * SIZE
-    y = ( @current_pos.y - @d_top_left_y.to_i + 0.5 ) * SIZE
+    decaled_current_pos = @picture_size.decal_position( @current_pos )
+    x = ( decaled_current_pos.x + 0.5 ) * DungeonBmpPrintPictureSize::SIZE
+    y = ( decaled_current_pos.y + 0.5 ) * DungeonBmpPrintPictureSize::SIZE
 
     gc.fill_opacity( 0 )
-    gc.circle( x, y, x + ( SIZE * Dungeon::WATCH_DISTANCE ) / 2, y + ( SIZE * Dungeon::WATCH_DISTANCE / 2 ) )
+    gc.circle( x, y, x + ( DungeonBmpPrintPictureSize::SIZE * Dungeon::WATCH_DISTANCE ) / 2, y + ( DungeonBmpPrintPictureSize::SIZE * Dungeon::WATCH_DISTANCE / 2 ) )
     gc.fill_opacity( 1 )
 
     gc.fill( 'red' )
-    gc.circle( x, y, x + SIZE / 4, y + SIZE / 4 )
+    gc.circle( x, y, x + DungeonBmpPrintPictureSize::SIZE / 4, y + DungeonBmpPrintPictureSize::SIZE / 4 )
 
   end
 
-  def draw_case( gc, w, h, image_borders, plain = false )
+  def draw_case( gc, position, plain = false )
+
     gc.fill( 'darkslateblue' ) if plain
-    minx = ( w - @d_top_left_x ) * SIZE
-    maxx = ( w - @d_top_left_x + 1 ) * SIZE
-    miny = ( h - @d_top_left_y ) * SIZE
-    maxy = ( h - @d_top_left_y + 1 ) * SIZE
 
-    true_minx, true_maxx, true_miny, true_maxy = *image_borders
-
-    true_minx = minx if !true_minx || true_minx > minx
-    true_maxx = maxx if !true_maxx || true_maxx < maxx
-
-    true_miny = miny if !true_miny || true_miny > miny
-    true_maxy = maxy if !true_maxy || true_maxy < maxy
+    minx = position.x * DungeonBmpPrintPictureSize::SIZE
+    maxx = ( position.x + 1 ) * DungeonBmpPrintPictureSize::SIZE
+    miny = position.y * DungeonBmpPrintPictureSize::SIZE
+    maxy = ( position.y + 1 ) * DungeonBmpPrintPictureSize::SIZE
 
     gc.rectangle( minx, miny, maxx, maxy )
 
-    gc.line( minx + SIZE / 2, miny, minx + SIZE / 2, maxy )
-    gc.line( minx, miny + SIZE / 2, maxx, miny + SIZE / 2 )
+    gc.line( minx + DungeonBmpPrintPictureSize::SIZE / 2, miny, minx + DungeonBmpPrintPictureSize::SIZE / 2, maxy )
+    gc.line( minx, miny + DungeonBmpPrintPictureSize::SIZE / 2, maxx, miny + DungeonBmpPrintPictureSize::SIZE / 2 )
 
     gc.fill( 'white' )
 
-    [ true_minx, true_maxx, true_miny, true_maxy ]
   end
 
 end
