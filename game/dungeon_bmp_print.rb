@@ -29,7 +29,7 @@ module DungeonBmpPrint
       ( @d_top_left_x.to_i .. @d_bottom_right_x.to_i ).each do |w|
         position = Position.new( w, h )
 
-        if position.distance( @current_pos ) < 10 || position.distance( @last_pos ) < 10
+        if position.distance( @current_pos ) < 10
           position_hash_key = position.hash_key
 
           if @cases[ position_hash_key ] && @cases[ position_hash_key ] == :wall
