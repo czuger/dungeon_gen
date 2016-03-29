@@ -2,14 +2,10 @@ module NaiveLineOfSight
 
   def los_obstrued?( pos1, pos2, dungeon_cases )
 
-    # puts pos1.inspect, pos2.inspect
     los_cases = bresenham( pos1, pos2 )
-    # puts los_cases.inspect
 
     los_cases.each do |c|
-      puts "#{c.hash_key}, #{dungeon_cases[ c.hash_key ]}"
       if dungeon_cases[ c.hash_key ] == :wall
-        puts "Wall at #{c.inspect}"
         return true
       end
     end

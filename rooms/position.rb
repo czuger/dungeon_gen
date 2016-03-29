@@ -48,15 +48,16 @@ class Position
   end
 
   def move( order )
-    command, amount =  order.scan( /(\w)(\d+)/ ).first
-    amount = amount.to_i / 2.0
-    if command == 'u'
+    # command, amount =  order.scan( /(\w)(\d+)/ ).first
+    command = order
+    amount = 1
+    if command == '8'
       @y -= amount
-    elsif command == 'd'
+    elsif command == '2'
       @y += amount
-    elsif command == 'l'
+    elsif command == '4'
       @x -= amount
-    elsif command == 'r'
+    elsif command == '6'
       @x += amount
     else
       puts 'Bad order !!'
