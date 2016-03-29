@@ -1,9 +1,11 @@
 class DungeonBmpPrintPictureSize
 
   SIZE = 100
-  PICTURE_POS_EXTENT = 10
+  PICTURE_POS_EXTENT = 5
 
   def initialize( current_pos, last_pos )
+
+    # pp current_pos, last_pos
 
     @data = {
       case: {
@@ -20,21 +22,28 @@ class DungeonBmpPrintPictureSize
 
     @data[ :coord ] = {} unless @data[ :coord ]
     ( :x .. :y ).each do |coord|
-      [ :max, :min ].each do |function|
+      [ :min, :max ].each do |function|
         @data[ :coord ][ coord ] = {} unless @data[ :coord ][ coord ]
         @data[ :coord ][ coord ][ function ] = {} unless @data[ :coord ][ coord ][ function ]
         @data[ :coord ][ coord ][ function ] = @data[ :case ][ coord ][ function ] * SIZE
       end
     end
+
+    # pp self
+
   end
 
   def each_case
-    ( 0 .. get_val( :case, :y, :max ) - get_val( :case, :y, :min ) ).each do |y|
-      ( 0 .. get_val( :case, :x, :max ) - get_val( :case, :x, :min ) ).each do |x|
+    ( get_val( :case, :y, :min ).floor .. get_val( :case, :y, :max ).ceil ).each do |y|
+      ( get_val( :case, :x, :min ).floor .. get_val( :case, :x, :max ).ceil ).each do |x|
         position = Position.new( x, y )
         yield position
       end
     end
+  end
+
+  def decal_case( position )
+    Position.new( position.x - get_val( :case, :x, :min ), position.y - get_val( :case, :y, :min ) )
   end
 
   def decal_position( position )

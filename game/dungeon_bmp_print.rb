@@ -1,7 +1,10 @@
 require 'rmagick'
 require_relative 'dungeon_bmp_print_picture_size'
+require_relative 'naive_line_of_sight'
 
 module DungeonBmpPrint
+
+  include NaiveLineOfSight
 
   def print_dungeon_bmp
 
@@ -26,7 +29,7 @@ module DungeonBmpPrint
 
       if @cases[ position_hash_key ] && @cases[ position_hash_key ] == :wall
         draw_case( gc, position, true )
-      elsif @cases[ position_hash_key ] && @cases[ position_hash_key ] == :floor
+      elsif @cases[ position_hash_key ] && @cases[ position_hash_key ] == :floor && !los_obstrued?( @current_pos, position, @cases )
         draw_case( gc, position )
       else
         draw_case( gc, position, true )
@@ -52,12 +55,7 @@ module DungeonBmpPrint
     # gc.rectangle( 10, 10, 500, 500 )
 
     draw_pos( gc )
-
     gc.draw( canvas )
-
-    # puts true_minx, true_maxx, true_miny, true_maxy
-    # canvas.crop!( true_minx, true_miny, true_maxx - true_minx, true_maxy - true_miny )
-
     canvas.write( 'out/dungeon.jpg' )
   end
 
@@ -74,7 +72,7 @@ module DungeonBmpPrint
   end
 
   def draw_pos( gc )
-    decaled_current_pos = @picture_size.decal_position( @current_pos )
+    decaled_current_pos = @picture_size.decal_case( @current_pos )
     x = ( decaled_current_pos.x + 0.5 ) * DungeonBmpPrintPictureSize::SIZE
     y = ( decaled_current_pos.y + 0.5 ) * DungeonBmpPrintPictureSize::SIZE
 
@@ -88,6 +86,10 @@ module DungeonBmpPrint
   end
 
   def draw_case( gc, position, plain = false )
+
+    # pp position
+    position = @picture_size.decal_case( position )
+    # pp position
 
     gc.fill( 'darkslateblue' ) if plain
 
