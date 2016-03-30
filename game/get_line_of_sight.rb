@@ -1,4 +1,4 @@
-module NaiveLineOfSight
+module GetLineOfSight
 
   def los_obstrued?( pos1, pos2, dungeon_cases )
 

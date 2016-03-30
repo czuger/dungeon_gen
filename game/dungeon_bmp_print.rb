@@ -1,10 +1,10 @@
 require 'rmagick'
 require_relative 'dungeon_bmp_print_picture_size'
-require_relative 'naive_line_of_sight'
+require_relative 'get_line_of_sight'
 
 module DungeonBmpPrint
 
-  include NaiveLineOfSight
+  include GetLineOfSight
 
   def print_dungeon_bmp
 
@@ -36,23 +36,18 @@ module DungeonBmpPrint
       end
     end
 
-    # ( @d_top_left_y.to_i .. @d_bottom_right_y.to_i ).each do |h|
-    #   ( @d_top_left_x.to_i .. @d_bottom_right_x.to_i ).each do |w|
-    #     position = Position.new( w, h )
-    #     if position.distance( @current_pos ) < Dungeon::WATCH_DISTANCE || position.distance( @last_pos ) < Dungeon::WATCH_DISTANCE
-    #       position_hash_key = position.hash_key
-    #       if @dungeon_content[ position_hash_key ]
-    #         unless @dungeon_content[ position_hash_key ].empty?
-    #           # puts position.distance( @current_pos )
-    #           # puts position.distance( @last_pos )
-    #           print_text( gc, position, @dungeon_content[ position_hash_key ] )
-    #         end
-    #       end
-    #     end
-    #   end
-    # end
+    @picture_size.each_case do |position|
 
-    # gc.rectangle( 10, 10, 500, 500 )
+      if position.distance( @current_pos ) < Dungeon::WATCH_DISTANCE || position.distance( @last_pos ) < Dungeon::WATCH_DISTANCE
+        position_hash_key = position.hash_key
+        if @dungeon_content[ position_hash_key ]
+          unless @dungeon_content[ position_hash_key ].empty?
+            print_text( gc, position, @dungeon_content[ position_hash_key ] )
+          end
+        end
+      end
+
+    end
 
     draw_pos( gc )
     gc.draw( canvas )
@@ -62,8 +57,9 @@ module DungeonBmpPrint
   private
 
   def print_text( gc, position, text )
-    x = ( position.x - @d_top_left_x.to_i + 0.5 - 0.25 ) * SIZE
-    y = ( position.y - @d_top_left_y.to_i + 0.5 + 0.25 ) * SIZE
+    position = @picture_size.decal_case( position )
+    x = ( position.x + 0.5 - 0.25 ) * DungeonBmpPrintPictureSize::SIZE
+    y = ( position.y + 0.5 + 0.25 ) * DungeonBmpPrintPictureSize::SIZE
     gc.pointsize = 80
     gc.fill( 'black' )
     # puts text.join( '' ).inspect

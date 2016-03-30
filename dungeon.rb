@@ -73,6 +73,14 @@ class Dungeon
     treasure = rand( 1 .. 10 ) == 1 ? 'C' : 'H'
     @dungeon_content[ treasure_room.room_center.hash_key ] << treasure
 
+    # Traps generation
+    @hallways.each do |hallway|
+      trap = rand( 1 .. 5 ) == 1 ? 'T' : nil
+      trap_position = hallway.hallway_floors_positions.sample
+      @dungeon_content[ trap_position.hash_key ] = [] unless @dungeon_content[ trap_position.hash_key ]
+      @dungeon_content[ trap_position.hash_key ] << trap if trap
+    end
+
     # pp @dungeon_content
 
   end

@@ -48,20 +48,21 @@ class Position
   end
 
   def move( order )
-    # command, amount =  order.scan( /(\w)(\d+)/ ).first
+    good_order = true
     command = order
     amount = 1
-    if command == '8'
+    # puts order.inspect
+    if command == "\e[A"
       @y -= amount
-    elsif command == '2'
+    elsif command == "\e[B"
       @y += amount
-    elsif command == '4'
+    elsif command == "\e[D"
       @x -= amount
-    elsif command == '6'
+    elsif command == "\e[C"
       @x += amount
     else
-      puts 'Bad order !!'
+      good_order = false
     end
+    good_order
   end
-
 end

@@ -4,12 +4,15 @@ class Hallway < Room
 
   # TODO : have a look there http://www.gamasutra.com/blogs/AAdonaac/20150903/252889/Procedural_Dungeon_Generation_Algorithm.php
   # They explain how to make cornered hallways
+  attr_reader :hallway_floors_positions
 
   def initialize( dungeon, room1, room2 )
 
     super()
 
     @dungeon = dungeon
+    # For traps
+    @hallway_floors_positions = []
 
     # try to create a straight hallway
     mp = get_rooms_midpoint( room1, room2 )
@@ -70,6 +73,7 @@ class Hallway < Room
         p = Position.new( x, y )
         if x == pos_1.x
           @elements << RoomElement.new( p, :floor )
+          @hallway_floors_positions << p
         else
           @elements << RoomElement.new( p, :wall ) unless @dungeon.case_occuped?( p.hash_key )
         end
@@ -89,6 +93,7 @@ class Hallway < Room
         p = Position.new( x, y )
         if y == pos_1.y
           @elements << RoomElement.new( p, :floor )
+          @hallway_floors_positions << p
         else
           p = Position.new( x, y )
           @elements << RoomElement.new( p, :wall ) unless @dungeon.case_occuped?( p.hash_key )
