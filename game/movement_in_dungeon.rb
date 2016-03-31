@@ -13,6 +13,8 @@ module MovementInDungeon
       unless @current_pos.move( c )
         if c == 'k'
           kill_monsters
+        elsif c == 'd'
+          disarm_traps
         else
           puts 'Bad order !!!'
         end
@@ -20,6 +22,17 @@ module MovementInDungeon
       print_dungeon_bmp
     end
 
+  end
+
+  def disarm_traps
+    @dungeon_content.each_pair do |key, values|
+      next unless values.include?( 'T' )
+      trap_pos = Position.from_hash_key( key )
+      distance = trap_pos.distance( @current_pos )
+      if distance < Dungeon::WATCH_DISTANCE
+        @dungeon_content[ key ].delete( 'T' )
+      end
+    end
   end
 
   def kill_monsters
