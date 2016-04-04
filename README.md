@@ -27,6 +27,15 @@ Finally the script only modify a bitmap into the out directory. In order to see 
 The biggest problem was to put the bitmap from linux to the campain/pic directory. I used samba + a script which is not really comfortable.
 A best solution would have to play under linux.
 
+## Setup and run
+
+`
+git clone https://github.com/czuger/dungeon_gen
+cd dungeon_gen
+bundle install
+ruby dungeon.rb
+`
+
 ## Commands
 
 * Use the arrow keys to move in the dungeon.
