@@ -29,12 +29,12 @@ A best solution would have to play under linux.
 
 ## Setup and run
 
-`
+```sh
 git clone https://github.com/czuger/dungeon_gen
 cd dungeon_gen
 bundle install
 ruby dungeon.rb
-`
+```
 
 ## Commands
 
