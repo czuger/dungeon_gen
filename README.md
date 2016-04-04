@@ -25,7 +25,7 @@ So i wanted something that allows me to navigate into the dungeon and produce a 
 Finally the script only modify a bitmap into the out directory. In order to see the move you have to watch the bitmap with a viewing tool like Risretto.
 
 The biggest problem was to put the bitmap from linux to the campain/pic directory. I used samba + a script which is not really comfortable.
-A best solution would have to play under linux.
+A best solution would have been to play under linux.
 
 ## Setup and run
 
