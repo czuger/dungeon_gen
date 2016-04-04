@@ -30,16 +30,16 @@ A best solution would have to play under linux.
 ## Commands
 
 * Use the arrow keys to move in the dungeon.
-* d to mark a monster as killed.
+* k to mark a monster as killed.
 * d to mark a trap as disarmed.
 
 ## Output
 
-* Show you a grid : white is room, purple is wall
-* The small plain red circle is you
-* The big red circle is how far you detect monsters
-* If you see a M then you meet a monster, create an encounter and resolve it
-* If you see a T then you have a trap
-* If you see a H then you have found the treasure. Give a hoard to the party, yeah ^^
-* If you see a C then you have a trapped chest. Resolve the trap and then (if they are still alive) treat it as a H
+* Show you a grid : white is room, purple is wall.
+* The small plain red circle is you.
+* The big red circle is how far you detect monsters.
+* If you see a M then you meet a monster, create an encounter and resolve it.
+* If you see a T then you have a trap.
+* If you see a H then you have found the treasure. Give a hoard to the party, yeah ^^.
+* If you see a C then you have a trapped chest. Resolve the trap and then (if they are still alive) treat it as a H.
 
