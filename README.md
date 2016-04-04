@@ -6,7 +6,7 @@ Yes, another dungeon generator. This is a very basic dungeon generator in which 
 
 Great thanks to @adonaac most of the dungeon generation is based on his work there : http://www.gamasutra.com/blogs/AAdonaac/20150903/252889/Procedural_Dungeon_Generation_Algorithm.php
 
-# TODO
+## TODO
 
 Add alternative connections between rooms. At this moment this is a pure Minimum Spanning Tree.
 
@@ -15,7 +15,7 @@ Add alternative connections between rooms. At this moment this is a pure Minimum
 I worked with Linux Mint xfce, ruby 2.3.0 and Risretto as an image viewer.
 Could work with other environment, but could be hard (especially Windows because of RMagick).
 
-**Only people with strong knowledge in ruby and in computers in general should try to use this tool. It is the exact opposite of user friendly tool ;) ** 
+**Only people with strong knowledge in ruby and in computers in general should try to use this tool. It is the exact opposite of user friendly tool ;)** 
 
 ## Purpose 
 
