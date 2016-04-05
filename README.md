@@ -13,7 +13,7 @@ Add alternative connections between rooms. At this moment this is a pure Minimum
 ## Environment
 
 I worked with Linux Mint xfce, ruby 2.3.0 and Risretto as an image viewer.
-Could work with other environment, but could be hard (especially Windows because of RMagick).
+Could work with other environment, but will probably be hard (especially Windows because of RMagick).
 
 **Only people with strong knowledge in ruby and in computers in general should try to use this tool. It is the exact opposite of user friendly tool ;)** 
 
