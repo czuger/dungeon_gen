@@ -21,7 +21,7 @@ class Dungeon
   def initialize( nb_rooms )
 
     superseed = nil
-    # superseed = 291932777597860773281208982618645704288
+    superseed = 227363164522134968962419981135215379863
     seed = superseed ? superseed : Random.new_seed
     puts "Dungeon seed = #{seed}"
     srand( seed )
@@ -54,8 +54,9 @@ class Dungeon
     # Monsters generation, each room has halve a chance of having a monster
     @rooms.each do |room|
       monster = @rooms.first != room && rand( 1 .. 2 ) == 1 ? 'M' : nil
-      @dungeon_content[ room.room_center.hash_key ] = []
-      @dungeon_content[ room.room_center.hash_key ] << monster if monster
+      if monster
+        @dungeon_content[ room.room_center.hash_key ] = [ monster ]
+      end
     end
 
     # Treasure generation.
@@ -71,6 +72,7 @@ class Dungeon
       end
     end
     treasure = rand( 1 .. 10 ) == 1 ? 'C' : 'H'
+    @dungeon_content[ treasure_room.room_center.hash_key ] ||= []
     @dungeon_content[ treasure_room.room_center.hash_key ] << treasure
 
     # Traps generation

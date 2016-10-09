@@ -60,7 +60,7 @@ module DungeonBmpPrint
     position = @picture_size.decal_case( position )
     x = ( position.x + 0.5 - 0.25 ) * DungeonBmpPrintPictureSize::SIZE
     y = ( position.y + 0.5 + 0.25 ) * DungeonBmpPrintPictureSize::SIZE
-    gc.pointsize = 80
+    gc.pointsize = 50
     gc.fill( 'black' )
     # puts text.join( '' ).inspect
     gc.text( x, y, text.join( '' ) )
@@ -101,6 +101,27 @@ module DungeonBmpPrint
 
     gc.fill( 'white' )
 
+    pos = Position.new( w, h )
+    show_monster = pos.distance( @current_pos ) < Dungeon::WATCH_DISTANCE && @dungeon_content[ pos.hash_key ]
+    print_distance( gc, pos ) unless plain || show_monster
+  end
+
+  def print_distance( gc, pos )
+    if @current_pos.x == pos.x
+      if @current_pos.y > pos.y
+        print_text( gc, pos, [ "U#{((@current_pos.y-pos.y)*2).to_i}" ] )
+      else
+        print_text( gc, pos, [ "D#{((pos.y-@current_pos.y)*2).to_i}" ] )
+      end
+    end
+
+    if @current_pos.y == pos.y
+      if @current_pos.x > pos.x
+        print_text( gc, pos, [ "L#{((@current_pos.x-pos.x)*2).to_i}" ] )
+      else
+        print_text( gc, pos, [ "R#{((pos.x-@current_pos.x)*2).to_i}" ] )
+      end
+    end
   end
 
 end
